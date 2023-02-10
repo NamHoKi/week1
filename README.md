@@ -14,13 +14,39 @@
 <hr>
 
 ## 1. Dataset
-### [AI hub 공사장 데이터](https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=163)
-### [안전모](https://universe.roboflow.com/roboflow-universe-projects/hard-hats-fhbh5/dataset/4/images/?split=train)
-### [안전모](https://universe.roboflow.com/roboflow-universe-projects/personal-protective-equipment-combined-model/browse?queryText=class%3ANO-Hardhat&pageSize=50&startingIndex=500&browseQuery=true)
-### [안전모](https://public.roboflow.com/object-detection/hard-hat-workers)
-### [신발](https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=163)
-### [옷](https://universe.roboflow.com/yamin-thwe-weurg/e-commerce-puyv6/browse?queryText=&pageSize=50&startingIndex=300&browseQuery=true)
-### [옷](https://universe.roboflow.com/zhang-ya-ying/clothes-detect-fevqm/browse?queryText=&pageSize=50&startingIndex=150&browseQuery=true)
+### Label
+```
+label_dict = {
+    0: 'belt',
+    1: 'no_belt',
+    2: 'hoes',
+    3: 'no_shoes',
+    4: 'helmet',
+    5: 'no_helmet',
+    6: 'person'
+}
+```
+
+### Image
+[AI hub 공사장 데이터](https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=163)
+
+[안전모](https://universe.roboflow.com/roboflow-universe-projects/hard-hats-fhbh5/dataset/4/images/?split=train)
+
+[안전모](https://universe.roboflow.com/roboflow-universe-projects/personal-protective-equipment-combined-model/browse?queryText=class%3ANO-Hardhat&pageSize=50&startingIndex=500&browseQuery=true)
+
+[안전모](https://public.roboflow.com/object-detection/hard-hat-workers)
+
+[신발](https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=163)
+
+[옷](https://universe.roboflow.com/yamin-thwe-weurg/e-commerce-puyv6/browse?queryText=&pageSize=50&startingIndex=300&browseQuery=true)
+
+[옷](https://universe.roboflow.com/zhang-ya-ying/clothes-detect-fevqm/browse?queryText=&pageSize=50&startingIndex=150&browseQuery=true)
+
+
+### Person Label
+```
+Yolov5 - detect.py - pretrained model (yolo5s, default) - label:0
+```
 
 <hr>
 
