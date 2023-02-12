@@ -1,5 +1,10 @@
 # object detection toy project
 
+
+
+<hr>
+Python version : 3.8
+
 <hr>
 
 ## Step
@@ -14,16 +19,26 @@
 <hr>
 
 ## 1. Dataset
-### Label
+### Label 1
 ```
 label_dict = {
     0: 'belt',
     1: 'no_belt',
-    2: 'hoes',
+    2: 'shoes',
     3: 'no_shoes',
     4: 'helmet',
     5: 'no_helmet',
     6: 'person'
+}
+```
+
+### Label 2
+```
+label_dict = {
+    0: 'belt',
+    1: 'shoes',
+    2: 'helmet',
+    3: 'person'
 }
 ```
 
@@ -59,10 +74,9 @@ pip install torch==1.11.0+cu113 torchvision==0.12.0+cu113 torchaudio==0.11.0 --e
 
 <hr>
 
-## 4. GUI
+## 4. GUI (PyQt5)
 
 ```
-# PyQt5 install
 pip install pyqt5
 pip install pyside2
 ```
