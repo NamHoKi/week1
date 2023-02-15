@@ -318,7 +318,7 @@ class MyWindow(QMainWindow):
     #         smtp_server = "smtp.gmail.com"
     #         smtp_port = 587
     #         smtp_user = "skaghrl0@gmail.com"
-    #         smtp_pass = "gnoukvtchqfvyvpm"
+    #         smtp_pass = "your pass"
     #
     #         # 이메일 보내기
     #         try:
