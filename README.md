@@ -80,6 +80,7 @@ pip install torch==1.11.0+cu113 torchvision==0.12.0+cu113 torchaudio==0.11.0 --e
 pip install pyqt5
 pip install pyside2
 ```
+### 동영상 플레이어 참고 https://oceancoding.blogspot.com/2020/07/blog-post_22.html
 
 <hr>
 
