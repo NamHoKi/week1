@@ -86,4 +86,5 @@ pip install pyside2
 
 ## 5. Reference
 
-### https://koreascience.kr/article/JAKO201915555313326.pdf
+https://koreascience.kr/article/JAKO201915555313326.pdf
+https://ysyblog.tistory.com/m/294 (Python email 이미지 첨부)
