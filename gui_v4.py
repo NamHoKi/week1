@@ -356,12 +356,13 @@ class MyWindow(QMainWindow):
                             self.image_label.resize(self.pixmap.width(), self.pixmap.height())
                             self.image_label.move(140, 0)
 
-                            cv2.waitKey(5) # 프레임간 딜레이
+                            cv2.waitKey(5)
 
                             if self.mp4_stop :
                                 print('KeyboardInterrupt : "mp4 stop"')
                                 self.add_gui_console('KeyboardInterrupt : MP4 STOP')
                                 break
+
                         else:
                             break
 
@@ -397,6 +398,7 @@ class MyWindow(QMainWindow):
             smtp_port = 587
             smtp_user = "dbtmd324@gmail.com"
             smtp_pass = "gnoukvtchqfvyvpm"
+
 
             # 이메일 보내기
             try:
@@ -463,6 +465,7 @@ class MyWindow(QMainWindow):
         fname = f'./Log/Log_{str(datetime.now().date())}.txt'
         with open(fname, 'w', encoding='utf-8') as f :
             f.write(self.scroll_label.text())
+
         self.add_gui_console('Save log' + f' ./Log_{fname}')
 
 
