@@ -1,18 +1,31 @@
 # object detection toy project
+1. 공사 현장 안전 장비 미착용으로 인한 사고 방지 (스마트 안전 통합 관제 시스템)
+2. 배운 내용으로 데이터 셋 구축 및 서비스 구현
 
+<참고자료>
+
+http://news.kmib.co.kr/article/view.asp?arcid=0016070557&code=61121111&cp=nv
+
+https://newsis.com/view/?id=NISX20230127_0002172017
+
+https://www.hankyung.com/society/article/202302032530Y
 
 
 <hr>
-Python version : 3.8
+-*- encoding - python 3.8 -*-
 
 <hr>
 
 ## Step
 
 ### 1. Dataset
+데이터 다운로드 및 데이터 선택
+이미지 검수 및 이미지 제거 또는 CVAT로 수정작업
 ### 2. Train
+yolov5모델을 선택하여 training
 ### 3. Inference
 ### 4. GUI
+pyqt5로 GUI, 추가 기능 구현
 ### 5. Reference
 
 
@@ -42,20 +55,31 @@ label_dict = {
 }
 ```
 
-### Image
-[AI hub 공사장 데이터](https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=163)
+### Dataset
+AI 허브(공사 현장 안전장비 인식 이미지)
 
-[안전모](https://universe.roboflow.com/roboflow-universe-projects/hard-hats-fhbh5/dataset/4/images/?split=train)
+https://aihub.or.kr/aihubdata/data/view.do?currMenu=116&topMenu=100&aihubDataSe=ty&dataSetSn=163
 
-[안전모](https://universe.roboflow.com/roboflow-universe-projects/personal-protective-equipment-combined-model/browse?queryText=class%3ANO-Hardhat&pageSize=50&startingIndex=500&browseQuery=true)
+roboflow(Personal Protective Equipment - Combined Model)
 
-[안전모](https://public.roboflow.com/object-detection/hard-hat-workers)
+https://universe.roboflow.com/roboflow-universe-projects/personal-protective-equipment-combined-model/browse?queryText=class%3A%22NO-Safety+Vest%22&pageSize=50&startingIndex=500&browseQuery=true
 
-[신발](https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=163)
+roboflow(Hard Hat Workers Dataset) - 안전모 미착용
 
-[옷](https://universe.roboflow.com/yamin-thwe-weurg/e-commerce-puyv6/browse?queryText=&pageSize=50&startingIndex=300&browseQuery=true)
+https://public.roboflow.com/object-detection/hard-hat-workers/2
 
-[옷](https://universe.roboflow.com/zhang-ya-ying/clothes-detect-fevqm/browse?queryText=&pageSize=50&startingIndex=150&browseQuery=true)
+
+roboflow(clothes detect) - 안전조끼 미착용
+
+https://universe.roboflow.com/zhang-ya-ying/clothes-detect-fevqm/dataset/5
+
+roboflow(site2)
+
+https://app.roboflow.com/changwoo-kim-vvfty/site2/browse?queryText=&pageSize=50&startingIndex=0&browseQuery=true
+
+roboflow(whole_dataset) - 안전화 미착용
+
+https://universe.roboflow.com/business-qcddc/whole_dataset/dataset/4
 
 
 ### Person Label
