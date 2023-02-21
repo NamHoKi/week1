@@ -112,3 +112,7 @@ pip install pyside2
 
 https://koreascience.kr/article/JAKO201915555313326.pdf
 https://ysyblog.tistory.com/m/294 (Python email 이미지 첨부)
+
+
+
++ 이미지 트랙킹 
