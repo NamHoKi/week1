@@ -127,16 +127,6 @@ class MyWindow(QMainWindow):
         btn4.resize(130, 50)
         btn4.clicked.connect(self.MP4_Stop)
 
-        # # Spin Box (self.send_limit_time 수정)
-        # self.spinbox_label1 = QLabel('QSpinBox')
-        # self.spinbox1 = QSpinBox()
-        # self.spinbox1.setMinimum(2)
-        # self.spinbox1.setMaximum(20)
-        # self.spinbox.setSingleStep(1)
-        # self.lbl2 = QLabel('0')
-        #
-        # self.spinbox.valueChanged.connect(self.value_changed)
-
         # Line edit (E mail)
         self.line_edit1 = QLineEdit(self)
         self.line_edit1.move(10, 320)
