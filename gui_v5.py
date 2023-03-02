@@ -62,7 +62,7 @@ class MyWindow(QMainWindow):
         self.shoes = False
 
         # email 보내는 조건 설정
-        self.send_limit_time = 200
+        self.send_limit_time = 20
         self.reset_limit_time = 5
         '''
         send_limit_time = 20
@@ -116,7 +116,7 @@ class MyWindow(QMainWindow):
                            "background-color: #444444")
         btn3.move(10, 150)
         btn3.resize(130, 50)
-        btn3.clicked.connect(self.play_mp4)
+        btn3.clicked.connect(self.run)
         self.mp4_stop = False
 
         # Button 4
@@ -144,8 +144,7 @@ class MyWindow(QMainWindow):
                            "background-color: #444444")
         btn5.move(10, 410)
         btn5.setText('SET\nE - Mail Address')
-        # btn5.clicked.connect(self.set_email)
-        btn5.clicked.connect(self.run)
+        btn5.clicked.connect(self.set_email)
 
         # Check Box
         self.cb1 = QCheckBox('Helet', self)
@@ -485,12 +484,61 @@ class MyWindow(QMainWindow):
         self.add_gui_console("CHECK BOX --- SHOES " + str(self.shoes))
 
 
+    def safe_check_deepsort(self, person, no_person):
+        person_result_list = []
+        no_person_result_list = []
+        for p in person:
+            person_result = '-'
+            for np in no_person:
+                np_x, np_y = np[0], np[1]
+
+                if p[0] <= np_x and p[2] >= np_x and p[1] <= np_y and p[3] >= np_y:
+                    if (np[2] == 1 and self.belt) :
+                        person_result = "Danger"
+                        no_person_result_list.append([np_x, np_y, "X"])
+                    if (np[2] == 3 and self.shoes) :
+                        person_result = "Danger"
+                        no_person_result_list.append([np_x, np_y, "X"])
+                    if (np[2] == 5 and self.helmet) :
+                        person_result = "Danger"
+                        no_person_result_list.append([np_x, np_y, "X"])
+
+
+            if person_result == '-' :
+                person_result = "Safety"
+
+            person_result_list.append([p[0], p[1], p[2], p[3], person_result])
+
+        return person_result_list, no_person_result_list
+
+
     def save_log(self) :
         fname = f'./Log/Log_{str(datetime.now().date())}.txt'
         with open(fname, 'w', encoding='utf-8') as f :
             f.write(self.scroll_label.text())
 
         self.add_gui_console('Save log' + f' ./Log_{fname}')
+
+
+    def IoU(self, box1, box2):
+        # box = (x1, y1, x2, y2)
+        box1_area = (box1[2] - box1[0] + 1) * (box1[3] - box1[1] + 1)
+        box2_area = (box2[2] - box2[0] + 1) * (box2[3] - box2[1] + 1)
+
+        # obtain x1, y1, x2, y2 of the intersection
+        x1 = max(box1[0], box2[0])
+        y1 = max(box1[1], box2[1])
+        x2 = min(box1[2], box2[2])
+        y2 = min(box1[3], box2[3])
+
+        # compute the width and height of the intersection
+        w = max(0, x2 - x1 + 1)
+        h = max(0, y2 - y1 + 1)
+
+        inter = w * h
+        iou = inter / (box1_area + box2_area - inter)
+        return iou
+
 
     @torch.no_grad()
     def run(self,
@@ -501,7 +549,7 @@ class MyWindow(QMainWindow):
             max_det=1000,  # maximum detections per image
             save_txt=False,  # save results to *.txt
             save_crop=False,  # save cropped prediction boxes
-            classes=6,  # filter by class: --class 0, or --class 0 2 3
+            classes=None,  # filter by class: --class 0, or --class 0 2 3
             agnostic_nms=False,  # class-agnostic NMS
             augment=False,  # augmented inference
             visualize=False,  # visualize features
@@ -580,7 +628,11 @@ class MyWindow(QMainWindow):
                     dt[2] += time_sync() - t3
 
                     frame_idx = frame_idx + 1
+
                     # Process predictions
+                    person = []
+                    no_person = []
+
                     for i, det in enumerate(pred):  # detections per image
                         seen += 1
                         if webcam:  # batch_size >= 1
@@ -602,11 +654,18 @@ class MyWindow(QMainWindow):
                             bbox_xywh = []
                             confs = []
                             ## Adapt detections to deep sort input format
+                            # cls : classes
                             for *xyxy, conf, cls in det:
                                 x_c, y_c, bbox_w, bbox_h = bbox_rel(*xyxy)
                                 obj = [x_c, y_c, bbox_w, bbox_h]
                                 bbox_xywh.append(obj)
                                 confs.append([conf.item()])
+
+                                if int(cls.item()) == 6:
+                                    person.append([int((x_c) - (bbox_w // 2)), int((y_c) - (bbox_h // 2)), int((x_c) + (bbox_w // 2)),
+                                                   int((y_c) + (bbox_h // 2))])
+                                else:
+                                    no_person.append([x_c, y_c, int(cls.item())])
 
                             xywhs = torch.Tensor(bbox_xywh)
                             confss = torch.Tensor(confs)
@@ -614,110 +673,90 @@ class MyWindow(QMainWindow):
                             # Pass detections to deepsort
                             outputs = deepsort.update(xywhs, confss, im0)
 
+                            print('<person>\n', person)
+                            print('<no person>\n', no_person)
+                            cv2.waitKey(0)
                             # draw boxes for visualization
                             if len(outputs) > 0:
-                                bbox_xyxy = outputs[:, :4]
-                                identities = outputs[:, -1]
+                                image = im0
 
-                                for output in outputs:
-                                    cv2.rectangle(im0, (output[0], output[1]), (output[2], output[3]), (0, 255, 0), 1)
-                                    cv2.putText(im0, str(output[4]), (int((output[0] + output[2]) / 2) - 15, int(output[1] + 10)), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                                                (0, 255, 255), 2)
+                                person_result_list, no_person_result_list = self.safe_check_deepsort(person, no_person)
+                                danger_temp_check = False
+                                for r in person_result_list:
+                                    x1, y1, x2, y2, result = r[0], r[1], r[2], r[3], r[4]
+                                    iou = 0
+                                    for output in outputs :
+                                        temp_iou = self.IoU([r[0], r[1], r[2], r[3]], [output[0], output[1], output[2], output[3]])
+                                        if temp_iou > iou :
+                                            iou = temp_iou
+                                            id = output[4]
 
-                            # cv2.imshow('test', im0)
-                            # cv2.waitKey(10)
+                                    if r[4] == 'Danger':
+                                        danger_temp_check = True
 
+                                    if self.helmet or self.belt or self.shoes:
+                                        try:
+                                            cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 1)
+                                            cv2.putText(image, result + ' ' + str(id), (int((x1 + x2) / 2) - 15, int(y1 + 10)),
+                                                        cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                                                        (0, 255, 255), 2)
 
-                    # frame, danger_temp_check = self.get_result_image(frame)
-                    def get_result_image(self, image):
-                        # model input
-                        # 모델에 이미지를 넣어준다.
-                        output = self.model(image, size=640)
-                        # print(output.print())
-                        bbox_info = output.xyxy[0]  # bounding box의 결과를 추출
-                        # for문을 들어가서 우리가 원하는 결과를 뽑는다.
+                                        except Exception as e:
+                                            print(e)
 
-                        person = []
-                        no_person = []
+                                for r in no_person_result_list:
+                                    np_x, np_y, text = r[0], r[1], r[2]
 
-                        for bbox in bbox_info:
-                            # bbox에서 x1, y1, x2, y2, score, label_number의 결과를 가지고 온다.
-                            x1 = int(bbox[0].item())
-                            y1 = int(bbox[1].item())
-                            x2 = int(bbox[2].item())
-                            y2 = int(bbox[3].item())
+                                    if self.helmet or self.belt or self.shoes:
+                                        try:
+                                            cv2.putText(image, text, (int(np_x), int(np_y)), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                                                        (0, 255, 255), 2)
 
-                            score = bbox[4].item()
-                            label_number = int(bbox[5].item())
+                                        except Exception as e:
+                                            print(e)
 
-                            if label_number == 6:
-                                person.append([x1, y1, x2, y2, score])
-                            else:
-                                no_person.append([x1, y1, x2, y2, label_number])
+                                frame = cv2.resize(image, (1120, 630))
+                                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # 프레임에 색입히기
 
-                        person_result_list, no_person_result_list = self.safe_check(person, no_person)
-                        danger_temp_check = False
-                        for r in person_result_list:
-                            x1, y1, x2, y2, score, result = r[0], r[1], r[2], r[3], r[4], r[5]
+                                if danger_temp_check:
+                                    self.danger_count += 1
+                                    if not self.danger_check:
+                                        self.danger_check = True
+                                        self.danger_start_time = time.time()
+                                    self.danger_last_time = time.time()
 
-                            if r[5] == 'Danger':
-                                danger_temp_check = True
+                                    if self.danger_last_time - self.danger_start_time >= self.send_limit_time:
+                                        cv2.imwrite('./image/email_image.png', frame)
+                                        self.send_email()
+                                        self.reset_danger()
+                                else:
+                                    if time.time() - self.danger_last_time >= self.reset_limit_time:
+                                        self.reset_danger()
 
-                            if self.helmet or self.belt or self.shoes:
-                                try:
-                                    cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 1)
-                                    cv2.putText(image, result, (int((x1 + x2) / 2) - 15, int(y1 + 10)),
-                                                cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                                                (0, 255, 255), 2)
-                                    # cv2.putText(image, str(round(r[4], 4)), (int(x1), int(y1 - 25)), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                                    #             (0, 255, 255), 2)
-                                except Exception as e:
-                                    print(e)
+                                self.convertToQtFormat = QImage(frame.data, frame.shape[1],
+                                                                frame.shape[0],
+                                                                QImage.Format_RGB888)
+                                self.pixmap = QPixmap(self.convertToQtFormat)
+                                self.image_label.setPixmap(self.pixmap)  # 이미지 세팅
+                                self.image_label.setContentsMargins(10, 10, 10, 10)  # 여백 설정
+                                self.image_label.resize(self.pixmap.width(), self.pixmap.height())
+                                self.image_label.move(140, 0)
 
-                        for r in no_person_result_list:
-                            np_x, np_y, text = r[0], r[1], r[2]
+                                cv2.waitKey(5)
+                        else :
+                            deepsort.increment_ages()
+                            frame = cv2.resize(im0, (1120, 630))
+                            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # 프레임에 색입히기
+                            self.convertToQtFormat = QImage(frame.data, frame.shape[1],
+                                                            frame.shape[0],
+                                                            QImage.Format_RGB888)
+                            self.pixmap = QPixmap(self.convertToQtFormat)
+                            self.image_label.setPixmap(self.pixmap)  # 이미지 세팅
+                            self.image_label.setContentsMargins(10, 10, 10, 10)  # 여백 설정
+                            self.image_label.resize(self.pixmap.width(), self.pixmap.height())
+                            self.image_label.move(140, 0)
 
-                            if self.helmet or self.belt or self.shoes:
-                                try:
-                                    cv2.putText(image, text, (int(np_x), int(np_y)), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                                                (0, 255, 255), 2)
-
-                                except Exception as e:
-                                    print(e)
-
-                        return image, danger_temp_check
-
-
-                    frame = im0
-
-                    danger_temp_check = False
-                    if danger_temp_check:
-                        self.danger_count += 1
-                        if not self.danger_check:
-                            self.danger_check = True
-                            self.danger_start_time = time.time()
-                        self.danger_last_time = time.time()
-
-                        if self.danger_last_time - self.danger_start_time >= self.send_limit_time:
-                            cv2.imwrite('./image/email_image.png', frame)
-                            self.send_email()
-                            self.reset_danger()
-                    else:
-                        if time.time() - self.danger_last_time >= self.reset_limit_time:
-                            self.reset_danger()
-
-                    frame = cv2.resize(frame, (1120, 630))
-                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # 프레임에 색입히기
-                    self.convertToQtFormat = QImage(frame.data, frame.shape[1],
-                                                    frame.shape[0],
-                                                    QImage.Format_RGB888)
-                    self.pixmap = QPixmap(self.convertToQtFormat)
-                    self.image_label.setPixmap(self.pixmap)  # 이미지 세팅
-                    self.image_label.setContentsMargins(10, 10, 10, 10)  # 여백 설정
-                    self.image_label.resize(self.pixmap.width(), self.pixmap.height())
-                    self.image_label.move(140, 0)
-
-                    cv2.waitKey(5)
+                            cv2.waitKey(5)
 
                     if self.mp4_stop:
                         print('KeyboardInterrupt : "mp4 stop"')
@@ -726,6 +765,7 @@ class MyWindow(QMainWindow):
 
                 cv2.destroyAllWindows()
                 self.mp4_stop = False
+
 
 
 if __name__ == "__main__":
