@@ -19,6 +19,8 @@ from pathlib import Path
 import torch
 import torch.backends.cudnn as cudnn
 
+import threading
+
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
@@ -422,7 +424,6 @@ class MyWindow(QMainWindow):
             smtp_user = "dbtmd324@gmail.com"
             smtp_pass = "gnoukvtchqfvyvpm"
 
-
             # 이메일 보내기
             try:
                 server = smtplib.SMTP(smtp_server, smtp_port)
@@ -432,7 +433,6 @@ class MyWindow(QMainWindow):
                 server.sendmail(smtp_user, recipient, message.as_string())
             except Exception as e:
                 print(f"Failed to send email. Error: {e}")
-
 
         # 2. 알람 서비스 실행
         subject = "[Alert] Safety equipment not detected"
@@ -673,8 +673,8 @@ class MyWindow(QMainWindow):
                             # Pass detections to deepsort
                             outputs = deepsort.update(xywhs, confss, im0)
 
-                            print('<person>\n', person)
-                            print('<no person>\n', no_person)
+                            # print('<person>\n', person)
+                            # print('<no person>\n', no_person)
                             cv2.waitKey(0)
                             # draw boxes for visualization
                             if len(outputs) > 0:
@@ -727,7 +727,9 @@ class MyWindow(QMainWindow):
 
                                     if self.danger_last_time - self.danger_start_time >= self.send_limit_time:
                                         cv2.imwrite('./image/email_image.png', frame)
-                                        self.send_email()
+                                        t = threading.Thread(target=self.send_email)
+                                        t.start()
+                                        # self.send_email()
                                         self.reset_danger()
                                 else:
                                     if time.time() - self.danger_last_time >= self.reset_limit_time:
