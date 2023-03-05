@@ -769,7 +769,6 @@ class MyWindow(QMainWindow):
                 self.mp4_stop = False
 
 
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     mywindow = MyWindow()
